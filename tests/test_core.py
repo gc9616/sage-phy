@@ -176,7 +176,7 @@ def test_assigner_on_sage_layout(tmp_path):
     src = tmp_path / "scene" / "layout_L.json"
     src.parent.mkdir()
     src.write_text(json.dumps(layout))
-    assert normalize_type("Chair_12") == "chair"
+    assert normalize_type("Chair_12") == "chair" and normalize_type("book2") == "book"
     dens = {"DRINKING_CUP": {"p5": 100.0, "p50": 300.0, "p95": 500.0}}
     mats = {"ceramic": {"friction_lo": 0.4, "friction_median": 0.5, "friction_hi": 0.6}}
 

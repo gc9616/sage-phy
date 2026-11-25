@@ -66,7 +66,7 @@ def assign_object(obj_type: str, description: str, bbox_dims: tuple[float, float
 
 
 def normalize_type(t: str) -> str:
-    """SAGE numbers repeated types ('chair_1', 'chair_2'); strip the suffix."""
+    """SAGE numbers repeated types (chair_1, book2); strip the suffix."""
     return re.sub(r"_\d+$", "", t.strip().lower())
 
 
