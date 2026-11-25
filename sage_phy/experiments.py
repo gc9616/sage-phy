@@ -20,7 +20,8 @@ def episode(experiment: str, primitive: str, obj: dict, condition: str, props: P
             contact_friction: float, params: dict, seed: int, loader: str = "grounded",
             **extra) -> dict:
     ep = {"experiment": experiment, "primitive": primitive, "object_id": obj["id"],
-          "scene": obj.get("scene"), "prim_path": obj.get("prim_path"),
+          "scene": obj.get("scene"), "layout": obj.get("layout"), "prim_path": obj.get("prim_path"),
+          "support_prim": obj.get("support_prim"), "push_axis": obj.get("push_axis"),
           "condition": condition, "loader": loader, **props.to_dict(),
           "contact_friction": contact_friction, "params": params, "seed": seed, **extra}
     ep["id"] = hashlib.sha1(json.dumps(ep, sort_keys=True).encode()).hexdigest()[:16]
@@ -53,7 +54,8 @@ def _clean(m: float, mu: float) -> Props:
 
 def _shipped_damped(cfg, m: float, mu: float) -> Props:
     sh = cfg["shipped"]
-    return Props(m, mu, sh["linear_damping"], sh["angular_damping"], sh["max_linear_velocity"])
+    return Props(m, mu, sh["linear_damping"], sh["angular_damping"], sh["max_linear_velocity"],
+                 sh["max_angular_velocity"])
 
 
 # ---------------------------------------------------------------- F0 (audit)

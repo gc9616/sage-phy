@@ -27,6 +27,9 @@ sage_phy/
   analysis.py      E1 share outside the region (Wilson), E2 gaps (bootstrap over objects)
   backends/        analytic (closed form, no GPU) and isaac (Isaac Sim 5.0)
 scripts/check_isaac.py         gate G1
+scripts/fetch_scenes.py        SAGE kits + scenes by room type (reads only the layout JSON to search)
+data/sage/scene_index.json     scanned scenes: room types and objects (git-ignored; rebuilt by fetch_scenes)
+TESTING.md                     desktop checklist, G1 to G2
 tests/                          unit and end-to-end tests (analytic backend)
 ```
 
@@ -40,13 +43,9 @@ python -m sage_phy plan        # episode counts by tier
 python -m sage_phy g4          # gate G4 against the analytic reference
 ```
 
-**Desktop** (Isaac Sim 5.0, headless over SSH and tmux, reached via Tailscale):
-```bash
-~/isaacsim/python.sh scripts/check_isaac.py                  # G1
-~/isaacsim/python.sh -m pip install -e .
-export SAGE_ROOT=~/sage-phy/data/sage                         # kits/ and scenes/
-~/isaacsim/python.sh -m sage_phy --backend isaac readback --scene <scene>
-```
+**Desktop** (Isaac Sim 5.0, headless over SSH and tmux): see [TESTING.md](TESTING.md).
+
+Every path in the code, configs and object files is relative to the repo root, whatever the working directory. `data/sage/kits` (SAGE's loader) and `data/sage/scenes` are fetched by `scripts/fetch_scenes.py` and git-ignored. `SAGE_KITS` overrides the location of the kits.
 
 ## Run order
 
@@ -86,4 +85,5 @@ Code marked `VERIFY` in `backends/isaac.py` and `scripts/check_isaac.py` uses Is
 
 - **Average combine mode.** The effective friction is μe = (μ_object + μ_other)/2. Against a support surface with μ = 0.5, no object friction can give μe < 0.25. For that reason, the E1 friction sweep sets the support material to the same level as the object, so that μe equals the level exactly.
 - **Range sampling.** Mass is sampled log-uniformly over [P5, P95]. Friction is sampled uniformly over the range for the material class.
+- **What SAGE's loader does** (`kits/isaacsim_utils.py`, `convert_mesh_to_usd`). It applies friction 1e20 with `MaterialAPI` directly on each mesh prim and binds no material, sets linear and angular damping to 10, and caps linear velocity at 0.5 m/s and angular velocity at 0.5 **deg/s**. The read-back reports both the direct and the bound friction. The grounded loader binds a material and also overwrites the direct value.
 - **Test set.** Every E2 source is evaluated on the same held-out test set. Its parameters are sampled with seeds that do not depend on the source.

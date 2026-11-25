@@ -165,3 +165,35 @@ def test_select_controller_tiebreak():
     rs = [{"params": {"s": 0.1, "v": 0.3}, "success": True}, {"params": {"s": 0.08, "v": 0.4}, "success": True},
           {"params": {"s": 0.06, "v": 0.2}, "success": False}]
     assert ex.select_controller(rs) == {"s": 0.08, "v": 0.4}
+
+
+# ---------------- assigner and paths
+def test_assigner_on_sage_layout(tmp_path):
+    from sage_phy.assigner import assign_object, normalize_type, write_layout_copy
+    layout = {"id": "L", "rooms": [{"room_type": "kitchen", "objects": [
+        {"id": "r_mug_1", "type": "mug_2", "description": "A ceramic mug", "mass": 0.25,
+         "dimensions": {"width": 0.1, "length": 0.1, "height": 0.1}}]}]}
+    src = tmp_path / "scene" / "layout_L.json"
+    src.parent.mkdir()
+    src.write_text(json.dumps(layout))
+    assert normalize_type("Chair_12") == "chair"
+    dens = {"DRINKING_CUP": {"p5": 100.0, "p50": 300.0, "p95": 500.0}}
+    mats = {"ceramic": {"friction_lo": 0.4, "friction_median": 0.5, "friction_hi": 0.6}}
+
+    def fn(o):
+        d = o["dimensions"]
+        return assign_object(o["type"], o["description"], (d["width"], d["length"], d["height"]),
+                             1e-3, {"mug": "DRINKING_CUP"}, dens, mats, {"ceramic": "ceramic"})
+    out = write_layout_copy(src, tmp_path / "grounded", fn)
+    obj = json.loads(out.read_text())["rooms"][0]["objects"][0]["sage_phy"]
+    assert obj["category"] == "DRINKING_CUP" and obj["mass_range"] == pytest.approx([0.1, 0.3, 0.5])
+    assert obj["friction"] == [0.4, 0.5, 0.6] and obj["physics_source"] == "abo"
+    assert json.loads(src.read_text()) == layout  # original untouched
+    with pytest.raises(ValueError):
+        write_layout_copy(src, src.parent, fn)
+
+
+def test_repo_relative_paths():
+    from sage_phy.config import REPO_ROOT, repo_path
+    assert repo_path("configs/default.toml") == REPO_ROOT / "configs" / "default.toml"
+    assert repo_path("configs/default.toml").exists()

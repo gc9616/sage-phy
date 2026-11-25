@@ -9,7 +9,15 @@ try:
 except ModuleNotFoundError:  # Python 3.10
     import tomli as tomllib
 
-DEFAULT_PATH = Path(__file__).resolve().parent.parent / "configs" / "default.toml"
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_PATH = REPO_ROOT / "configs" / "default.toml"
+
+
+def repo_path(p: str | Path) -> Path:
+    """Paths in configs, object files and CLI defaults are relative to the repo root,
+    so the repo runs unchanged on any machine and from any working directory."""
+    p = Path(p).expanduser()
+    return p if p.is_absolute() else REPO_ROOT / p
 
 
 def _merge(base: dict, over: dict) -> dict:

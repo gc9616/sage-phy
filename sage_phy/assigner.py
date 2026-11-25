@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import csv
 import json
-import shutil
+import re
 from pathlib import Path
 
 from .plausibility import plausible_mass
@@ -44,7 +44,7 @@ def assign_object(obj_type: str, description: str, bbox_dims: tuple[float, float
     mat = hand_label or material_from_keywords(f"{obj_type} {description}", keywords)
     mprops = materials.get(mat, {}) if mat else {}
     w, l, h = bbox_dims
-    cat = type_map.get(obj_type)
+    cat = type_map.get(normalize_type(obj_type))
 
     if cat in densities:
         mass_range = list(plausible_mass(densities[cat], w * l * h))
@@ -65,14 +65,22 @@ def assign_object(obj_type: str, description: str, bbox_dims: tuple[float, float
             "physics_source": source}
 
 
-def write_layout_copy(layout_path: str | Path, out_dir: str | Path, assign_fn,
-                      objects_key: str = "objects") -> Path:
-    """Copy a SAGE layout JSON into out_dir and add a `sage_phy` block to each object.
+def normalize_type(t: str) -> str:
+    """SAGE numbers repeated types ('chair_1', 'chair_2'); strip the suffix."""
+    return re.sub(r"_\d+$", "", t.strip().lower())
 
-    `assign_fn(obj_dict) -> dict` returns the fields for one object.
-    NOTE: confirm `objects_key` and per-object type/size keys against the
-    downloaded SAGE-10k layouts (day 1-2).
-    """
+
+def iter_objects(layout: dict):
+    """SAGE-10k layout: rooms[].objects[] with id, type, description,
+    dimensions{width,length,height}, mass (default 1.0), place_id."""
+    for room in layout.get("rooms", []):
+        for obj in room.get("objects", []):
+            yield room, obj
+
+
+def write_layout_copy(layout_path: str | Path, out_dir: str | Path, assign_fn) -> Path:
+    """Copy a SAGE layout JSON into out_dir and add a `sage_phy` block to each object.
+    `assign_fn(obj_dict) -> dict` returns the fields for one object."""
     layout_path, out_dir = Path(layout_path), Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     out = out_dir / layout_path.name
@@ -80,12 +88,8 @@ def write_layout_copy(layout_path: str | Path, out_dir: str | Path, assign_fn,
         raise ValueError("refusing to overwrite the original layout")
     with open(layout_path, encoding="utf-8") as f:
         layout = json.load(f)
-    for obj in layout.get(objects_key, []):
+    for _, obj in iter_objects(layout):
         obj["sage_phy"] = assign_fn(obj)
     with open(out, "w", encoding="utf-8") as f:
         json.dump(layout, f, indent=2)
-    # Mesh and texture assets stay with the original; copy sidecars if present.
-    for sidecar in layout_path.parent.glob(layout_path.stem + ".*"):
-        if sidecar != layout_path and not (out_dir / sidecar.name).exists():
-            shutil.copy2(sidecar, out_dir / sidecar.name)
     return out

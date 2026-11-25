@@ -14,19 +14,19 @@ from pathlib import Path
 from . import abo, experiments as ex, gates
 from .analysis import e1_summary, e2_summary
 from .backends import get_backend
-from .config import load_config
+from .config import load_config, repo_path
 from .runner import load_results, run
 from .sources import ABLATIONS, COMPARISON, SOURCES
 
 
 def _objects(path: str, split: str | None = None) -> list[dict]:
-    with open(path, encoding="utf-8") as f:
+    with open(repo_path(path), encoding="utf-8") as f:
         objs = json.load(f)["objects"]
     return [o for o in objs if split is None or o["split"] == split]
 
 
 def _out(args, name: str) -> Path:
-    return Path(args.results) / args.backend / name
+    return repo_path(args.results) / args.backend / name
 
 
 def _dump(obj) -> None:
@@ -34,21 +34,23 @@ def _dump(obj) -> None:
 
 
 def cmd_abo(args, cfg):
-    paths = sorted(glob.glob(args.listings))
+    paths = sorted(glob.glob(str(repo_path(args.listings))))
     if not paths:
         sys.exit(f"no files match {args.listings}")
     dens = abo.category_densities(abo.iter_listings(paths), cfg["abo"]["min_listings"])
-    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.out).write_text(json.dumps(dens, indent=2))
+    out = repo_path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(dens, indent=2))
     print(f"{len(dens)} categories with >= {cfg['abo']['min_listings']} listings -> {args.out}")
 
 
 def cmd_readback(args, cfg):
     be = get_backend("isaac", cfg)
-    be.load_scene(args.scene, "sage")
+    be.load_scene(repo_path(args.layout))
     rows = be.read_back_all()
-    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.out).write_text(json.dumps(rows, indent=2))
+    out = repo_path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(rows, indent=2))
     print(f"{len(rows)} rigid bodies -> {args.out}")
     be.close()
 
@@ -167,7 +169,7 @@ def main(argv=None):
     p.set_defaults(fn=cmd_abo)
 
     p = sub.add_parser("readback", help="Stage 1: read back applied physics (Isaac only)")
-    p.add_argument("--scene", required=True)
+    p.add_argument("--layout", required=True, help="layout JSON, e.g. data/sage/scenes/<scene>/layout_<id>.json")
     p.add_argument("--out", default="results/isaac/readback.json")
     p.set_defaults(fn=cmd_readback)
 

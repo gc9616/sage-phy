@@ -1,0 +1,7 @@
+# Extra packages for Isaac Sim's bundled Python, needed by SAGE's kits loader
+# (isaacsim_utils.py -> tex_utils_local.py, glb_utils.py, utils.py).
+#   <isaac>/python.sh -m pip install -r requirements-isaac.txt
+trimesh
+plyfile
+xatlas
+pytest

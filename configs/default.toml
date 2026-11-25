@@ -2,13 +2,15 @@
 # the Nov 29 pilot and then frozen on Nov 30 (no changes after the freeze).
 
 [shipped]
-# Values applied by the SAGE-10k release (kits/isaacsim_utils.py L224-225,
-# server/isaacsim/.../usd_utils.py L199-205, L221-222).
+# Values applied by the SAGE-10k release loader, kits/isaacsim_utils.py
+# convert_mesh_to_usd L202-206 (damping, caps) and L223-225 (friction, applied
+# with MaterialAPI directly on the mesh prim, not as a bound material).
 friction = 1.0e20
 door_friction = 2.0
 linear_damping = 10.0
 angular_damping = 10.0
-max_linear_velocity = 0.5
+max_linear_velocity = 0.5         # m/s
+max_angular_velocity = 0.5        # PhysX unit is deg/s: objects can barely rotate
 # Set after F0 if 1e20 turns out not to be applied, or destabilises the solver
 # (contingency: use 2.0, SAGE's door value, and say so).
 f0_override = false

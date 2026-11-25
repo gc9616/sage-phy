@@ -47,6 +47,7 @@ class Props:
     linear_damping: float
     angular_damping: float
     max_linear_velocity: float | None
+    max_angular_velocity: float | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -97,7 +98,8 @@ def resolve(source: PropertySource | str, obj: dict, cfg: dict,
 
     sh = cfg["shipped"]
     if source.shipped_damping:
-        return Props(m, mu, sh["linear_damping"], sh["angular_damping"], sh["max_linear_velocity"])
+        return Props(m, mu, sh["linear_damping"], sh["angular_damping"], sh["max_linear_velocity"],
+                     sh["max_angular_velocity"])
     return Props(m, mu, 0.0, 0.0, None)
 
 
