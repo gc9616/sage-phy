@@ -1,0 +1,62 @@
+# Default configuration. Values marked PILOT are first guesses to be fixed at
+# the Nov 29 pilot and then frozen on Nov 30 (no changes after the freeze).
+
+[shipped]
+# Values applied by the SAGE-10k release (kits/isaacsim_utils.py L224-225,
+# server/isaacsim/.../usd_utils.py L199-205, L221-222).
+friction = 1.0e20
+door_friction = 2.0
+linear_damping = 10.0
+angular_damping = 10.0
+max_linear_velocity = 0.5
+# Set after F0 if 1e20 turns out not to be applied, or destabilises the solver
+# (contingency: use 2.0, SAGE's door value, and say so).
+f0_override = false
+
+[contact]
+combine_mode = "average"     # effective mu = (mu_object + mu_other) / 2
+support_friction = 0.5       # fixed, stated material for support surfaces
+pad_friction = 1.0           # gripper pad material (rubber)
+gravity = 9.81
+
+[defaults]                   # "simple defaults" property source
+density = 1000.0             # kg/m^3 x collision volume
+friction = 0.5               # PhysX default
+
+[push]
+band = [0.13, 0.17]          # ScIntBench push_rigid success band (m)
+max_tilt_deg = 30.0
+path_clearance = 0.3
+
+[lift]
+height = 0.10
+hold_s = 2.0
+max_slip = 0.01
+accel = 1.0                  # PILOT: lift acceleration a in 2*mu*F >= m(g+a)
+
+[e1]
+friction_min = 0.05          # effective mu sweep, geometric spacing
+friction_max = 2.0
+friction_n = 7
+mass_scales = [0.1, 1.0, 10.0]   # x median; mass is the negative control for push
+modes = ["clean", "shipped_damping"]
+seeds = 2
+lift_grid = 3                # 3x3 first, 5x5 if time allows
+jitter_pos = 0.005
+jitter_yaw_deg = 3.0
+
+[e2]
+push_s = [0.06, 0.08, 0.10, 0.12, 0.14]   # PILOT: stroke (m)
+push_v = [0.1, 0.2, 0.3, 0.4, 0.5]        # PILOT: speed (m/s)
+lift_F_min = 1.0                          # PILOT: grip force per finger (N)
+lift_F_max = 60.0
+lift_F_n = 10
+test_samples = 5
+seeds = 2
+
+[stats]
+bootstrap = 1000
+seed = 0
+
+[abo]
+min_listings = 30

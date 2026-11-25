@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Large or generated data stays out of git
+data/abo/
+data/sage/
+data/layouts_grounded/
+results/
+*.usd
+*.usda
+*.usdc
+*.glb
+*.ply
+*.json.gz
+
+# Keep small hand-built tables
+!data/*.csv
+!data/*.json

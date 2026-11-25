@@ -1,0 +1,17 @@
+{
+  "_note": "SYNTHETIC placeholder objects for pipeline tests with the analytic backend. Replace with the 20 selected SAGE-10k objects (configs/objects.json) on Nov 25.",
+  "objects": [
+    {"id": "mug_a", "scene": "kitchen_000", "prim_path": "/World/mug_a", "split": "train",
+     "category": "CUP", "material_class": "ceramic", "layout_mass": 1.0, "collision_volume": 0.0004,
+     "mass_range": [0.18, 0.32, 0.55], "friction_range": [0.4, 0.55, 0.7]},
+    {"id": "box_b", "scene": "kitchen_000", "prim_path": "/World/box_b", "split": "train",
+     "category": "FOOD_STORAGE_CONTAINER", "material_class": "plastic", "layout_mass": 1.0, "collision_volume": 0.0006,
+     "mass_range": [0.08, 0.15, 0.3], "friction_range": [0.3, 0.45, 0.6]},
+    {"id": "bottle_c", "scene": "dining_001", "prim_path": "/World/bottle_c", "split": "test",
+     "category": "BOTTLE", "material_class": "glass", "layout_mass": 1.0, "collision_volume": 0.0005,
+     "mass_range": [0.25, 0.45, 0.8], "friction_range": [0.3, 0.4, 0.5]},
+    {"id": "bowl_d", "scene": "dining_001", "prim_path": "/World/bowl_d", "split": "test",
+     "category": "BOWL", "material_class": "wood", "layout_mass": 1.0, "collision_volume": 0.0009,
+     "mass_range": [0.12, 0.25, 0.45], "friction_range": [0.4, 0.5, 0.65]}
+  ]
+}

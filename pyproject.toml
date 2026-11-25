@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sage-phy"
+version = "0.1.0"
+description = "Grounding SAGE's physics: audit, grounded property assignment, and consequence experiments in Isaac Sim"
+requires-python = ">=3.10"
+dependencies = [
+    "tomli>=2.0; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+sage-phy = "sage_phy.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["sage_phy*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
